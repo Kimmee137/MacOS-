@@ -18,16 +18,16 @@ jobs:
       - name: Check required secrets
         shell: pwsh
         env:
-          TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
+          TS_AUTHKEY: ${{ secrets.TS_AUTHKEY }}
           RDP_PASSWORD: ${{ secrets.RDP_PASSWORD }}
         run: |
-          if ([string]::IsNullOrWhiteSpace($env:TAILSCALE_AUTHKEY)) { throw 'Set the TAILSCALE_AUTHKEY repository secret.' }
+          if ([string]::IsNullOrWhiteSpace($env:TS_AUTHKEY)) { throw 'Set the TS_AUTHKEY repository secret.' }
           if ([string]::IsNullOrWhiteSpace($env:RDP_PASSWORD) -or $env:RDP_PASSWORD.Length -lt 16) { throw 'Set RDP_PASSWORD to a unique password of at least 16 characters.' }
 
       - name: Connect to Tailscale
         uses: tailscale/github-action@v4
         with:
-          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          authkey: ${{ secrets.TS_AUTHKEY }}
           version: latest
 
       - name: Configure private RDP
