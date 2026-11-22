@@ -1,6 +1,6 @@
 # Windows RDP through Tailscale
 
-This repository runs a temporary Windows Server 2022 machine with GitHub Actions. Connect to its desktop using Tailscale and Windows App (Remote Desktop). Each run starts a fresh machine; its files disappear when the job ends.
+This repository runs a temporary Windows Server 2025 machine with GitHub Actions. Connect to its desktop using Tailscale and Windows App (Remote Desktop). Each run starts a fresh machine; its files disappear when the job ends.
 
 ## One-time setup
 
