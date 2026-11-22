@@ -6,7 +6,7 @@ This repository runs a temporary Windows Server 2022 machine with GitHub Actions
 
 1. In Tailscale's admin console, generate a **reusable, ephemeral, tagged** auth key. Preapprove it if your tailnet requires device approval. Restrict access to that tag so only your own devices can reach TCP 3389.
 2. In this repository, open **Settings → Secrets and variables → Actions → New repository secret**. Add:
-   - `TAILSCALE_AUTHKEY`: the auth key from Tailscale.
+   - `TS_AUTHKEY`: the auth key from Tailscale.
    - `RDP_PASSWORD`: a unique Windows password of at least 16 characters. Keep it somewhere you can retrieve it; GitHub does not show secret values again.
 3. Install Tailscale on the device where you use Windows App, and sign into the same tailnet.
 
