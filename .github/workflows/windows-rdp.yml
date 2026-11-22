@@ -43,6 +43,10 @@ jobs:
           $password = ConvertTo-SecureString $env:RDP_PASSWORD -AsPlainText -Force
           New-LocalUser -Name 'rdpuser' -Password $password -PasswordNeverExpires -AccountNeverExpires -Description 'Temporary RDP user' | Out-Null
           Add-LocalGroupMember -Group 'Remote Desktop Users' -Member 'rdpuser'
+          Add-LocalGroupMember -SID 'S-1-5-32-544' -Member 'rdpuser'
+          $adminGroup = Get-LocalGroup -SID 'S-1-5-32-544'
+          $adminMember = Get-LocalGroupMember -Group $adminGroup | Where-Object { $_.SID -eq (Get-LocalUser -Name 'rdpuser').SID }
+          if (-not $adminMember) { throw 'RDP user was not added to the local Administrators group.' }
 
           Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server' -Name fDenyTSConnections -Value 0
           Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name UserAuthentication -Value 1
@@ -52,7 +56,7 @@ jobs:
           Get-NetFirewallRule -Name 'RemoteDesktop*' -ErrorAction SilentlyContinue | Disable-NetFirewallRule
           New-NetFirewallRule -DisplayName 'RDP via Tailscale only' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 3389 -LocalAddress $ip -RemoteAddress '100.64.0.0/10' -Profile Any | Out-Null
           "Tailscale IP: $ip" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
-          'Windows App user: .\rdpuser' | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+          'Windows App user: .\rdpuser (local Administrator)' | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           'Use the password saved in the RDP_PASSWORD repository secret. Stop the run when finished.' | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           Write-Host "RDP is available at $ip using .\rdpuser. Password is not printed."
 
