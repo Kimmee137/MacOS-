@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   rdp:
-    runs-on: windows-2022
+    runs-on: windows-2025
     timeout-minutes: 350
     steps:
       - name: Check required secrets
