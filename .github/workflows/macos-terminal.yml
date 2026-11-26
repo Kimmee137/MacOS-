@@ -1,0 +1,58 @@
+name: Temporary macOS Terminal via Tailscale
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: temporary-macos-terminal
+  cancel-in-progress: false
+
+jobs:
+  terminal:
+    runs-on: macos-15
+    timeout-minutes: 180
+    steps:
+      - name: Check Tailscale auth key
+        shell: bash
+        env:
+          TS_AUTHKEY: ${{ secrets.TS_AUTHKEY }}
+        run: |
+          if [[ -z "$TS_AUTHKEY" ]]; then
+            echo "::error::Set the TS_AUTHKEY repository secret."
+            exit 1
+          fi
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          authkey: ${{ secrets.TS_AUTHKEY }}
+          version: latest
+
+      - name: Enable private terminal
+        shell: bash
+        run: |
+          set -euo pipefail
+          tailscale set --ssh
+          ip="$(tailscale ip -4 | head -n 1)"
+          if [[ ! "$ip" =~ ^100\. ]]; then
+            echo "::error::No Tailscale IPv4 address found."
+            exit 1
+          fi
+          user="$(whoami)"
+          {
+            echo "### macOS Terminal"
+            echo "Connect from a device in your tailnet:"
+            echo "\`ssh ${user}@${ip}\`"
+            echo "Tailscale SSH policy must permit access to this runner and local user."
+            echo "Cancel the run when finished; the runner is temporary."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "Tailscale SSH is enabled for ${user}@${ip}"
+
+      - name: Keep terminal available
+        shell: bash
+        run: |
+          echo "Terminal available for up to 3 hours. Cancel this run when finished."
+          sleep 10200
